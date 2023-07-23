@@ -9,6 +9,86 @@ public class MyBot : IChessBot
     // int myScore;
     public Move Think(Board board, Timer timer)
     {
+        int Evaluate() {
+            int whiteEval = CountMaterial(true);
+            int blackEval = CountMaterial(false);
+
+            int evaluation = whiteEval - blackEval;
+
+            int perspective = (board.IsWhiteToMove) ? 1 : -1;
+            return evaluation * perspective;
+        }
+
+        int CountMaterial(bool color) {
+            int material = 0;
+            material += board.GetPieceList(PieceType.Pawn, color).Count * pieceValues[1];
+            material += board.GetPieceList(PieceType.Knight, color).Count * pieceValues[2];
+            material += board.GetPieceList(PieceType.Bishop, color).Count * pieceValues[3];
+            material += board.GetPieceList(PieceType.Rook, color).Count * pieceValues[4];
+            material += board.GetPieceList(PieceType.Queen, color).Count * pieceValues[5];
+            return material;
+        }
+
+
+        int Search (int depth, int alpha, int beta){
+            if(depth == ) {
+                return Evaluate();
+            }
+
+            Move[] moves = board.GetLegalMoves();
+            if(moves.Count() == 0) {
+                if(board.IsInCheck()) {
+                    return int.MinValue;
+                }
+                return 0;
+            }
+
+            int bestEvaluation = int.MinValue;
+
+            foreach(Move move in moves) {
+                board.MakeMove(move);
+                int evaluation = -Search(depth - 1, -beta, -alpha);
+                board.UndoMove(move);
+                if(evaluation >= beta) {
+                    return beta;
+                }
+                alpha = Max(alpha, evaluation);
+            }
+            return alpha;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // PieceList[] currentPieces = board.GetAllPieceLists();
         // int count = 0;
         // foreach(PieceList pieceList in currentPieces) {
@@ -63,66 +143,66 @@ public class MyBot : IChessBot
         //     board.MakeMove(move)
         // }
 
-        Move moveToPlay = board.GetLegalMoves()[0];
+        // Move moveToPlay = board.GetLegalMoves()[0];
 
-        int evaluate(Board board) {
-            Move[] allMoves = board.GetLegalMoves();
+        // int evaluate(Board board) {
+        //     Move[] allMoves = board.GetLegalMoves();
 
-            int highestValueCapture = 0;
+        //     int highestValueCapture = 0;
 
-            if(board.IsInCheckmate() && board.IsWhiteToMove) {
-                return -1000;
-            }
-            if(board.IsInCheckmate() && !board.IsWhiteToMove) {
-                return 1000;
-            }
-            if(board.IsDraw()) {
-                return 0;
-            }
+        //     if(board.IsInCheckmate() && board.IsWhiteToMove) {
+        //         return -1000;
+        //     }
+        //     if(board.IsInCheckmate() && !board.IsWhiteToMove) {
+        //         return 1000;
+        //     }
+        //     if(board.IsDraw()) {
+        //         return 0;
+        //     }
 
-            foreach (Move move in allMoves) {
-                Piece capturedPiece = board.GetPiece(move.TargetSquare);
-                int capturedPieceValue = pieceValues[(int)capturedPiece.PieceType];
+        //     foreach (Move move in allMoves) {
+        //         Piece capturedPiece = board.GetPiece(move.TargetSquare);
+        //         int capturedPieceValue = pieceValues[(int)capturedPiece.PieceType];
 
-                if (capturedPieceValue > highestValueCapture)
-                {
-                    highestValueCapture = capturedPieceValue;
-                }
-            }
+        //         if (capturedPieceValue > highestValueCapture)
+        //         {
+        //             highestValueCapture = capturedPieceValue;
+        //         }
+        //     }
 
-            return highestValueCapture;
-        }
+        //     return highestValueCapture;
+        // }
 
-        int score = 0;
+        // int score = 0;
 
-        int maxi(int depth) {
-            if (depth == 0) {
-                return evaluate(board);
-            }
-            int max = int.MinValue;
-            foreach (Move move in board.GetLegalMoves()) {
-                score = mini(depth - 1);
-                if(score > max) {
-                    max = score;
-                }
-            }
-            return max;
-        }
+        // int maxi(int depth) {
+        //     if (depth == 0) {
+        //         return evaluate(board);
+        //     }
+        //     int max = int.MinValue;
+        //     foreach (Move move in board.GetLegalMoves()) {
+        //         score = mini(depth - 1);
+        //         if(score > max) {
+        //             max = score;
+        //         }
+        //     }
+        //     return max;
+        // }
 
-        int mini(int depth) {
-            if (depth == 0) {
-                return -evaluate(board);
-            }
-            int min = int.MaxValue;
-            foreach (Move move in board.GetLegalMoves()) {
-                score = maxi(depth - 1);
-                if(score < min) {
-                    min = score;
-                }
-            }
-            return min;
-        }
+        // int mini(int depth) {
+        //     if (depth == 0) {
+        //         return -evaluate(board);
+        //     }
+        //     int min = int.MaxValue;
+        //     foreach (Move move in board.GetLegalMoves()) {
+        //         score = maxi(depth - 1);
+        //         if(score < min) {
+        //             min = score;
+        //         }
+        //     }
+        //     return min;
+        // }
         
-        return moveToPlay;
+        // return moveToPlay;
     }
 }
