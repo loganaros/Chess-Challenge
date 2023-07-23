@@ -16,6 +16,7 @@ public class MyBot : IChessBot
             int evaluation = whiteEval - blackEval;
 
             int perspective = (board.IsWhiteToMove) ? 1 : -1;
+
             return evaluation * perspective;
         }
 
@@ -32,7 +33,7 @@ public class MyBot : IChessBot
 
         int Search (int depth, int alpha, int beta){
             if(depth == 0) {
-                return Evaluate();
+                return SearchAllCaptures(alpha, beta);
             }
 
             Move[] moves = board.GetLegalMoves();
@@ -54,6 +55,67 @@ public class MyBot : IChessBot
             }
             return alpha;
         }
+
+        void OrderMoves(Move[] moves) {
+            foreach(Move move in moves) {
+                int moveScoreGuess = 0;
+                int movePieceType = (int)board.GetPiece(move.StartSquare).PieceType;
+                int capturedPieceType = (int)board.GetPiece(move.TargetSquare).PieceType;
+
+                if(capturedPieceType != (int)PieceType.None) {
+                    moveScoreGuess = 10 * pieceValues[capturedPieceType] - pieceValues[movePieceType];
+                }
+
+                if(move.IsPromotion) {
+                    moveScoreGuess += pieceValues[(int)move.PromotionPieceType];
+                }
+
+                if(board.SquareIsAttackedByOpponent(move.TargetSquare)) {
+                    moveScoreGuess -= pieceValues[(int)move.MovePieceType];
+                }
+            }
+        }
+
+        int SearchAllCaptures(int alpha, int beta) {
+            int evaluation = Evaluate();
+            if(evaluation >= beta) {
+                return beta;
+            }
+            alpha = Math.Max(alpha, evaluation);
+
+            Move[] captureMoves = board.GetLegalMoves();
+            OrderMoves(captureMoves);
+
+            foreach(Move captureMove in captureMoves) {
+                if(captureMove.IsCapture && board.IsWhiteToMove) {
+                    board.MakeMove(captureMove);
+                    evaluation = -SearchAllCaptures(-beta, -alpha);
+                    board.UndoMove(captureMove);
+
+                    if(evaluation >= beta)
+                        return beta;
+                    alpha = Math.Max(alpha, evaluation);
+                }
+            }
+            return alpha;
+        }
+
+        int max = int.MinValue;
+
+        Move[] allMoves = board.GetLegalMoves();
+        Move bestMove = allMoves[0];
+        foreach(Move move in allMoves) {
+            board.MakeMove(move);
+            int value = Search(1, int.MinValue, int.MaxValue);
+            board.UndoMove(move);
+            if(value > max) {
+                Console.WriteLine("hit");
+                max = value;
+                bestMove = move;
+            }
+        }
+
+        return bestMove;
 
 
 
