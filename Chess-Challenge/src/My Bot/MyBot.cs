@@ -31,7 +31,7 @@ public class MyBot : IChessBot
 
 
         int Search (int depth, int alpha, int beta){
-            if(depth == ) {
+            if(depth == 0) {
                 return Evaluate();
             }
 
@@ -43,8 +43,6 @@ public class MyBot : IChessBot
                 return 0;
             }
 
-            int bestEvaluation = int.MinValue;
-
             foreach(Move move in moves) {
                 board.MakeMove(move);
                 int evaluation = -Search(depth - 1, -beta, -alpha);
@@ -52,7 +50,7 @@ public class MyBot : IChessBot
                 if(evaluation >= beta) {
                     return beta;
                 }
-                alpha = Max(alpha, evaluation);
+                alpha = Math.Max(alpha, evaluation);
             }
             return alpha;
         }
